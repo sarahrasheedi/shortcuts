@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>💻 دليل اختصارات الكمبيوتر</title>
-<!-- ربط خط Tajawal من Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
 <style>
 body { 
@@ -43,6 +42,22 @@ input {
   padding:12px; font-size:16px;
   border-radius:10px; border:2px solid #ccc;
   margin-bottom:20px;
+}
+.suggestions {
+  max-width:600px;
+  margin:0 auto;
+  background:#fff;
+  border:1px solid #ccc;
+  border-radius:8px;
+  text-align:right;
+  overflow:hidden;
+}
+.suggestions div {
+  padding:10px;
+  cursor:pointer;
+}
+.suggestions div:hover {
+  background:#f1f1f1;
 }
 .cards-container {
   display:flex; flex-wrap:wrap;
@@ -100,18 +115,31 @@ function renderMainPage(){
     <div class="container">
       <h1><span>اختصارات ${userOS}</span> <span class="emoji">🖥️</span></h1>
       <input id="search" placeholder="ابحث عن برنامج: Word, Excel, Photoshop, Illustrator">
+      <div id="suggestions" class="suggestions"></div>
       <h2><span>الاختصارات الأساسية</span> <span class="emoji">📌</span></h2>
       <div class="cards-container" id="cards"></div>
       <button class="back-btn" onclick="renderDeviceSelection()">رجوع لاختيار النظام ⬅</button>
     </div>
   `;
   renderCards(systemShortcuts);
-  document.getElementById("search").addEventListener("keydown", e=>{
-    if(e.key==="Enter"){
-      const val = e.target.value.trim();
-      if(shortcuts[userOS][val]) renderProgramPage(val);
-      else alert("البرنامج غير مدعوم حالياً");
-    }
+  setupSearch();
+}
+
+function setupSearch(){
+  const input = document.getElementById("search");
+  const suggestionsDiv = document.getElementById("suggestions");
+  input.addEventListener("input", ()=>{
+    const val = input.value.trim().toLowerCase();
+    suggestionsDiv.innerHTML="";
+    if(!val) return;
+    const programs = Object.keys(shortcuts[userOS]).filter(p=>p!=="system");
+    const matches = programs.filter(p=>p.toLowerCase().startsWith(val));
+    matches.forEach(m=>{
+      const div = document.createElement("div");
+      div.textContent = m;
+      div.onclick = ()=>renderProgramPage(m);
+      suggestionsDiv.appendChild(div);
+    });
   });
 }
 
